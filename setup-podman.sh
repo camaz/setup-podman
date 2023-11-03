@@ -90,7 +90,7 @@ case $unhide_storage in
 
      Yes|yes|Y|y ) sed -i -r \
 's/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
-/etc/containers/storage.conf > /etc/containers/storage.conf;;
+/etc/containers/storage.conf;;
 
     No|no|N|n ) ;;
 esac
