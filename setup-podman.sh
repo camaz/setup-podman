@@ -29,21 +29,6 @@ esac
 rc-update add cgroups
 rc-service cgroups start
 
-# select network backend
-read -r -p "select networking backend [cni|netavark|none]:  " network_backend;
-case $network_backend in
-
-     cni ) sed -i."$(date -I)".bak -r \
-'s/^[# ]*network_backend = .+$/network_backend = \"cni\"/' \
-/etc/containers/containers.conf;;
-
-     netavark ) sed -i."$(date -I)".bak -r \
-'s/^[# ]*network_backend = .+$/network_backend = \"netavark\"/' \
-/etc/containers/containers.conf;;
-
-    * ) ;;
-esac
-
 # select user to setup subuid and subgid for rootless podman
 # user will be created if account doesn't exist
 IFS= read -r -p "which user will be using podman?:  " podman_user;
@@ -52,8 +37,10 @@ if ! getent passwd "$podman_user" > /dev/null 2>&1
 then
     read -r -p "$podman_user does not exist, create new account? [Yes|No]:  " response;
     case $response in
+
         Yes|yes|Y|y ) echo -e "\n*** creating user $podman_user ***\n";
               adduser -D -s /sbin/nologin "$podman_user";;
+
         * ) break;;
     esac
 fi
@@ -74,11 +61,37 @@ echo tun >> /etc/modules
 
 apk add podman
 
+# select network backend
+read -r -p "select networking backend [cni|netavark|none]:  " network_backend;
+case $network_backend in
+
+     cni ) sed -i."$(date -I)".bak -r \
+'s/^[# ]*network_backend = .+$/network_backend = \"cni\"/' \
+/etc/containers/containers.conf;;
+
+     netavark ) sed -i."$(date -I)".bak -r \
+'s/^[# ]*network_backend = .+$/network_backend = \"netavark\"/' \
+/etc/containers/containers.conf;;
+
+    * ) ;;
+esac
+
 # set mount_program to fuse-overlayfs in /etc/containers/storage.conf
 # existing /etc/containers/storage.conf will be backed up
 sed -i."$(date -I)".bak -r \
 's/^[# ]*mount_program = .+$/mount_program = \"\/usr\/bin\/fuse-overlayfs\"/' \
 /etc/containers/storage.conf
+
+# move rootless storage container location from default hidden $HOME/.local/containers/storage
+read -r -p "unhide default rootless container storage in users home directory? [Yes|No]:  " unhide_storage;
+case $unhide_storage in
+
+     Yes|yes|Y|y ) sed -r \
+'s/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
+/etc/containers/storage.conf > /etc/containers/storage.conf;;
+
+    No|no|N|n ) ;;
+esac
 
 # run test container with specified user
 su -c 'podman run --rm quay.io/podman/hello' -s /bin/ash "$podman_user"
