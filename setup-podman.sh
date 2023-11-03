@@ -29,9 +29,23 @@ esac
 rc-update add cgroups
 rc-service cgroups start
 
+# select network backend
+read -r -p "select networking backend [cni|netavark|none]:  " net_back;
+case $net_back in
+
+     cni ) sed -i."$(date -I)".bak -r \
+'s/^[# ]*network_backend = .+$/network_backend = \"cni\"/' \
+/etc/containers/conatiners.conf;;
+
+     netavark ) sed -i."$(date -I)".bak -r \
+'s/^[# ]*network_backend = .+$/network_backend = \"netavark\"/' \
+/etc/containers/conatiners.conf;;
+
+    * ) ;;
+esac
+
 # select user to setup subuid and subgid for rootless podman
 # user will be created if account doesn't exist
-echo
 IFS= read -r -p "which user will be using podman?:  " podman_user;
 
 if ! getent passwd "$podman_user" > /dev/null 2>&1
