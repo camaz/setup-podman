@@ -35,11 +35,11 @@ case $network_backend in
 
      cni ) sed -i."$(date -I)".bak -r \
 's/^[# ]*network_backend = .+$/network_backend = \"cni\"/' \
-/etc/containers/conatiners.conf;;
+/etc/containers/containers.conf;;
 
      netavark ) sed -i."$(date -I)".bak -r \
 's/^[# ]*network_backend = .+$/network_backend = \"netavark\"/' \
-/etc/containers/conatiners.conf;;
+/etc/containers/containers.conf;;
 
     * ) ;;
 esac
