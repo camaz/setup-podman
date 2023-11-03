@@ -30,8 +30,8 @@ rc-update add cgroups
 rc-service cgroups start
 
 # select network backend
-read -r -p "select networking backend [cni|netavark|none]:  " net_back;
-case $net_back in
+read -r -p "select networking backend [cni|netavark|none]:  " network_backend;
+case $network_backend in
 
      cni ) sed -i."$(date -I)".bak -r \
 's/^[# ]*network_backend = .+$/network_backend = \"cni\"/' \
