@@ -93,10 +93,12 @@ case $unhide_storage in
 # sed -i -r \
 # 's/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
 # /etc/containers/storage.conf;
-     cat << EOF > /home/"$podman_user"/.config/containers/storage.conf
+     cat << EOF > /home/"$podman_user"/.config/containers/storage.conf;;
 [storage]
-graphroot="$HOME/containers/storage"
-EOF;
+driver = "overlay"
+runroot = "/home/$podman_user/containers/run"
+graphroot = "/home/$podman_user/containers/storage"
+EOF
 
     No|no|N|n ) ;;
 esac
