@@ -85,12 +85,18 @@ sed -i."$(date -I)".bak -r \
 /etc/containers/storage.conf
 
 # move rootless storage container location from default hidden $HOME/.local/containers/storage
-read -r -p "unhide default rootless container storage in users home directory? [Yes|No]:  " unhide_storage;
+read -r -p "unhide rootless container storage in users home directory? [Yes|No]:  " unhide_storage;
 case $unhide_storage in
 
-     Yes|yes|Y|y ) sed -i -r \
-'s/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
-/etc/containers/storage.conf;;
+     Yes|yes|Y|y )
+#!<-- trying to only use graphroot below..
+# sed -i -r \
+# 's/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
+# /etc/containers/storage.conf;
+     cat << EOF > /home/"$podman_user"/.config/containers/storage.conf
+[storage]
+graphroot="$HOME/containers/storage"
+EOF;
 
     No|no|N|n ) ;;
 esac
