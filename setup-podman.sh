@@ -92,8 +92,9 @@ case $unhide_storage in
 #!<-- trying to only use graphroot below..
 # sed -i -r \
 # 's/^[# ]*rootless_storage_path = .+$/rootless_storage_path = \"$HOME\/containers\/storage\"/' \
-# /etc/containers/storage.conf;
-     cat << EOF > /home/"$podman_user"/.config/containers/storage.conf;;
+# /etc/containers/storage.conf;;
+    mkdir -p "/home/$podman_user/.config/containers"
+    cat << EOF > /home/"$podman_user"/.config/containers/storage.conf;;
 [storage]
 driver = "overlay"
 runroot = "/home/$podman_user/containers/run"
