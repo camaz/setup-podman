@@ -5,12 +5,12 @@ IFS=
 # run as root
 if [ "$(id -u)" -ne 0 ]
 then
-    echo -e "\nthis script must be run with root privileges\n" >&2;
+    echo "this script must be run with root privileges" >&2;
     exit 1; 
 fi
 
 # sync time if no RTC available to avoid TLS errors
-chronyc makestep > /dev/null 2&>1
+chronyc makestep > /dev/null 2>&1
 apk update
 
 # rootless podman on diskless alpine linux requires fuse-ovlerlayfs
@@ -20,7 +20,7 @@ modprobe fuse
 
 # enable cgroups v2 - 'unified' allows 'podman stats'
 # existing /etc/rc.conf will be backed up
-read -r -p "enable cgroups v2? (allows 'podman stats') [Yes|No]:  " cgroups_version;
+read -r "enable cgroups v2? (allows 'podman stats') [Yes|No]:  " cgroups_version;
 case $cgroups_version in
     Yes|yes|Y|y ) sed -i."$(date -I)".bak -r \
 's/[# ]*rc_cgroup_mode=\"(legacy|hybrid|unified)\"/rc_cgroup_mode=\"unified\"/' \
@@ -33,17 +33,17 @@ rc-service cgroups start
 
 # select user to setup subuid and subgid for rootless podman
 # user will be created if account doesn't exist
-read -r -p "which user will be using podman?:  " podman_user;
+read -r "which user will be using podman?:  " podman_user;
 
 if ! getent passwd "$podman_user" > /dev/null 2>&1
 then
-    read -r -p "$podman_user does not exist, create new account? [Yes|No]:  " response;
+    read -r "$podman_user does not exist, create new account? [Yes|No]:  " response;
     case $response in
 
-        Yes|yes|Y|y ) echo -e "\n*** creating user $podman_user ***\n";
+        Yes|yes|Y|y ) echo; echo "*** creating user $podman_user ***"; echo:
               adduser -D -s /sbin/nologin "$podman_user";;
 
-        * ) break;;
+        * );;
     esac
 fi
 
@@ -64,7 +64,7 @@ echo tun >> /etc/modules
 apk add podman
 
 # select network backend
-read -r -p "select networking backend [cni|netavark|none]:  " network_backend;
+read -r "select networking backend [cni|netavark|none]:  " network_backend;
 case $network_backend in
 
      cni ) sed -i."$(date -I)".bak -r \
@@ -85,7 +85,7 @@ sed -i."$(date -I)".bak -r \
 /etc/containers/storage.conf
 
 # move rootless storage container location from default hidden $HOME/.local/containers/storage
-read -r -p "unhide rootless container storage in users home directory? [Yes|No]:  " unhide_storage;
+read -r "unhide rootless container storage in users home directory? [Yes|No]:  " unhide_storage;
 case $unhide_storage in
 
      Yes|yes|Y|y )
